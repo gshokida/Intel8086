@@ -1,5 +1,5 @@
 segment datos data
-	msg db "Hola Mundo$"
+	msg db 'Hola Mundo$'
 segment pila stack
 	resb 64
 stacktop:

@@ -6,7 +6,7 @@ segment pila stack
 stacktop:
 segment codigo code
 ..start:
-	mov ax,data
+	mov ax,datos
 	mov ds,ax
 	mov ax,pila
 	mov ss,ax
