@@ -11,7 +11,7 @@ segment datos data
 		mensajeIngresoConjunto db 'Ingresar conjunto a mostrar del 1 al 6$'
 		
 		numeroConjuntoChar resb 1
-		numeroConjuntoNum resb 1
+		contadorConjunto db "1"
 		conjuntoValido resb 1
 		
 segment pila stack
@@ -31,7 +31,7 @@ inicio:
 		
 		call pedirIngresoConjunto
 		
-		
+		call mostrarConjunto
 		;call recorrerMatriz
 		
 finPrograma:
@@ -63,7 +63,6 @@ llenarMatriz:
 		
 		ret
 
-		
 ;----------------------------------------------------------------------
 ; Pido el ingreso del conjunto del 1 al 6 y valido
 ;----------------------------------------------------------------------
@@ -97,6 +96,36 @@ finValidarIngresoConjunto:
 ingresoConjuntoNoValido:
 		mov byte[conjuntoValido], "F"
 		jmp finValidarIngresoConjunto
+
+
+;----------------------------------------------------------------------
+; Muestro el conjunto que elijo
+;----------------------------------------------------------------------
+mostrarConjunto:
+		mov ch,[numeroConjuntoChar]
+		mov si,0
+siguienteConjunto:
+		cmp byte[contadorConjunto],ch
+		jl avanzarConjunto
+		
+		mov byte[contador],0
+sigienteElementoConjunto:
+		inc byte[contador]
+		lea dx,[matriz+si]
+		mov ah,9
+		int 21h
+		add si,3
+		cmp byte[contador],20
+		je finMostrarConjunto
+		jmp sigienteElementoConjunto
+finMostrarConjunto:
+		call ejecutarEnter
+		ret
+		
+avanzarConjunto:
+		add si,60
+		add ch,1
+		jmp siguienteConjunto
 		
 ;----------------------------------------------------------------------
 ; Recorro la matriz y la muestro
