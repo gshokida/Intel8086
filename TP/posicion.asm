@@ -1,6 +1,7 @@
 segment datos data
 		
 		matriz times 120 db '||$'
+						db '$'
 		
 		elemento db '4A$'
 						
@@ -102,11 +103,11 @@ ingresoConjuntoNoValido:
 ; Muestro el conjunto que elijo
 ;----------------------------------------------------------------------
 mostrarConjunto:
-		mov ch,[numeroConjuntoChar]
+		mov bh,[contadorConjunto]
 		mov si,0
 siguienteConjunto:
-		cmp byte[contadorConjunto],ch
-		jl avanzarConjunto
+		cmp byte[numeroConjuntoChar],bh
+		jg avanzarConjunto
 		
 		mov byte[contador],0
 sigienteElementoConjunto:
@@ -116,15 +117,16 @@ sigienteElementoConjunto:
 		int 21h
 		add si,3
 		cmp byte[contador],20
-		je finMostrarConjunto
+		jge finMostrarConjunto
 		jmp sigienteElementoConjunto
 finMostrarConjunto:
 		call ejecutarEnter
+		mov byte[contadorConjunto],"1"
 		ret
 		
 avanzarConjunto:
 		add si,60
-		add ch,1
+		add bh,1
 		jmp siguienteConjunto
 		
 ;----------------------------------------------------------------------
