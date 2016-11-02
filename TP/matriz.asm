@@ -1,14 +1,13 @@
 segment datos data
 		
-		matriz times 120 db '!!$'
+		matriz times 120 db '||$'
 		
-		elemento db '1A$'
-		
-		elementoMatriz resb 2
-						db '$'
+		elemento db '4A$'
 						
 		salto db 13,10,'$'
-
+		
+		contador db 1
+		
 segment pila stack
 		resb 64
 stacktop:
@@ -22,11 +21,40 @@ segment codigo code
 		mov sp,stacktop
 		
 inicio:
-		mov bx,3
-		mov cx,2
-		lea si,[elemento]
-		lea di,[matriz+bx]
-		rep movsb
+		mov word[elemento],"CC"
+		
+		lea dx,[elemento]
+		mov ah,9
+		int 21h
+		
+		call ejecutarEnter
+		
+		mov bx,0
+		
+		;mov cx,3
+		;lea si,[elemento]
+		;lea di,[matriz+bx]
+		;rep movsb
+		
+		;mov word[matriz+bx],"CC"
+		
+		mov ax,[elemento]
+		mov word[matriz+bx],ax
+		
+		mov bx,63
+		mov word[matriz+bx],ax
+		
+		mov bx,126
+		mov word[matriz+bx],ax
+		
+		mov bx,189
+		mov word[matriz+bx],ax
+		
+		mov bx,252
+		mov word[matriz+bx],ax
+		
+		mov bx,315
+		mov word[matriz+bx],ax
 		
 		call recorrerMatriz
 		
@@ -34,29 +62,28 @@ finPrograma:
 		mov ah,4ch
 		int 21h
 		
-		
 recorrerMatriz:
 		mov bx,0
 		mov si,0
-		mov cx,6
-recorrerFilas:
-			mov di,20
-recorrerColumnas:
-			mov word[elementoMatriz],[matriz+bx+si]
-			
-			lea dx,[elementoMatriz]
-			mov ah,9
-			int 21h
-			
-			add si,3
-			dec di
-			jnz recorrerColumnas
-			call ejecutarEnter
-			mov si,0
-			add bx,60
-		loop recorrerFilas
-		
+		mov cx,360
+		mov byte[contador],0
+sigienteElemento:
+		inc byte[contador]
+		lea dx,[matriz+si]
+		mov ah,9
+		int 21h
+		add si,3
+		cmp byte[contador],20
+		je imprimirFinColumna
+vuelvoElemento:
+		sub cx,3
+		jnz sigienteElemento
 		ret
+
+imprimirFinColumna:
+		call ejecutarEnter
+		mov byte[contador],0
+		jmp vuelvoElemento
 		
 ejecutarEnter:
 		mov dx,salto
