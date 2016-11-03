@@ -27,6 +27,7 @@ segment datos data
 		
 		flagElemento resb 1  ; si vale V: Valido. F: No Valido
 		
+		
 		mensajeIngresoConjunto db 'Ingresar conjunto del 1 al 6$'
 		mensajeIngresoElemento db 'Ingrese un elemento valido$'
 		
@@ -49,6 +50,11 @@ segment datos data
 		numeroConjuntoUno resb 1
 		; conjunto Dos para la inclusion e igualdad de conjuntos
 		numeroConjuntoDos resb 1
+		
+		flagIncluido resb 1  ; si vale V: Valido. F: No Valido
+		contadorConjuntoIncluido db "1"
+		
+		contadorIncluido resb 1
 		
 segment pila stack
 		resb 64
@@ -139,7 +145,7 @@ finExistenciaElemento:
 
 ;**********************************************************************
 ; Verificar la inclusion de un conjunto en otro
-; Devuelve en flagElemento si el primer conjunto esta incluido en el 
+; Devuelve en flagIncluido si el primer conjunto esta incluido en el 
 ; segundo
 ;**********************************************************************
 inclusionConjuntos:
@@ -153,7 +159,7 @@ inclusionConjuntos:
 		
 		call estaIncluido
 
-		cmp byte[flagElemento],"V"
+		cmp byte[flagIncluido],"V"
 		je msgConjuntoIncluido
 		
 		lea dx,[mensajeNoInclusionConjuntos]
@@ -330,7 +336,6 @@ siguienteElementoExisteElemento:
 		je finExisteElemento
 		cmp word[matriz+si],ax
 		je existeElementoEnConjunto
-siguientePosicionExisteElemento:
 		add si,3
 		cmp byte[contador],20
 		jge finExisteElemento
@@ -353,13 +358,44 @@ existeElementoEnConjunto:
 ; segundo
 ; Recibo en numeroConjuntoUno y numeroConjuntoDos los valores de los
 ; conjunto
+; uso ah,bl,di,cx (ademas de si, bh y ax de existeElemento)
 ;**********************************************************************
 estaIncluido:
-		
-		
-		
+		mov byte[flagIncluido],"V"
+		mov ah,[numeroConjuntoDos]
+		mov byte[numeroConjuntoChar],ah
+		mov bl,[contadorConjuntoIncluido]
+		mov di,0
+siguienteEstaIncluido:
+		cmp byte[contadorConjuntoIncluido],bl
+		jg avanzarEstaIncluido
+		mov byte[contadorIncluido],0
+siguienteElementoEstaIncluido:
+		inc byte[contadorIncluido]
+		cmp word[matriz+di],"  "
+		je finalEstaIncluido
+		mov cx,[matriz+di]
+		mov word[elemento],cx
+		call existeElemento
+		cmp byte[flagElemento],"F"
+		je noEstaIncluido
+		add di,3
+		cmp byte[contadorIncluido],20
+		jge finalEstaIncluido
+		jmp siguienteElementoEstaIncluido
+finalEstaIncluido:
+		mov byte[contadorConjuntoIncluido],"1"
 		ret
 
+avanzarEstaIncluido:
+		add si,60
+		add bl,3
+		jmp siguienteEstaIncluido
+		
+noEstaIncluido:
+		mov byte[flagIncluido],"V"
+		jmp finalEstaIncluido
+		
 ;**********************************************************************
 ; Imprimir Menu
 ;**********************************************************************
