@@ -82,7 +82,7 @@ inicio:
 		;obtengo la opcion ingresada		
 		mov byte[menuOpcion],al
 		
-		call ejecutarEnter
+		call imprimirEnter
 		
 		cmp byte[menuOpcion],'1'
 		je ingresarElemento
@@ -119,15 +119,13 @@ ingresarElemento:
 		je ingresarElementoExiste
 		
 		call agregarElemento
-		
-		call recorrerMatriz
 volverIngresarElemento:
 		jmp inicio
 		
 ingresarElementoExiste:
 		lea dx,[ingresarElementoExistente]
 		call imprimirMensaje
-		call ejecutarEnter
+		call imprimirEnter
 		jmp volverIngresarElemento
 		
 ;**********************************************************************
@@ -145,16 +143,15 @@ existenciaElemento:
 		
 		lea dx,[mensajeNoExisteElemento]
 		call imprimirMensaje
-		call ejecutarEnter
+		call imprimirEnter
 		jmp finExistenciaElemento
 		
 msgElementoExiste:
 		lea dx,[mensajeExisteElemento]
 		call imprimirMensaje
-		call ejecutarEnter
+		call imprimirEnter
 		
 finExistenciaElemento:
-		call recorrerMatriz
 		jmp inicio
 
 ;**********************************************************************
@@ -184,7 +181,7 @@ igualdadConjuntos:
 		
 		lea dx,[mensajeIgualdadConjuntos]
 		call imprimirMensaje
-		call ejecutarEnter
+		call imprimirEnter
 		
 finIgualdadConjuntos:	
 		jmp inicio
@@ -192,7 +189,7 @@ finIgualdadConjuntos:
 msgConjuntosNoIguales:
 		lea dx,[mensajeNoIgualdadConjuntos]
 		call imprimirMensaje
-		call ejecutarEnter
+		call imprimirEnter
 		jmp finIgualdadConjuntos
 ;**********************************************************************
 ; Verificar la inclusion de un conjunto en otro
@@ -215,16 +212,15 @@ inclusionConjuntos:
 		
 		lea dx,[mensajeNoInclusionConjuntos]
 		call imprimirMensaje
-		call ejecutarEnter
+		call imprimirEnter
 		jmp finInclusionConjuntos
 		
 msgConjuntoIncluido:
 		lea dx,[mensajeInclusionConjuntos]
 		call imprimirMensaje
-		call ejecutarEnter
+		call imprimirEnter
 		
 finInclusionConjuntos:
-		call recorrerMatriz
 		jmp inicio
 		
 ;**********************************************************************
@@ -233,13 +229,13 @@ finInclusionConjuntos:
 pedirIngresoConjunto:
 		lea dx,[mensajeIngresoConjunto]
 		call imprimirMensaje
-		call ejecutarEnter
+		call imprimirEnter
 		
 		mov ah,1
 		int 21h
 		mov [numeroConjuntoChar],al
 		
-		call ejecutarEnter
+		call imprimirEnter
 		
 		call validarIngresoConjunto
 		
@@ -269,7 +265,7 @@ pedirIngresoElemento:
 		;pido el ingreso del elemento
 		lea dx,[mensajeIngresoElemento]
 		call imprimirMensaje
-		call ejecutarEnter
+		call imprimirEnter
 		;leo el elemento ingresado
 		lea dx,[elemento-2]
 		mov ah,0ah
@@ -286,12 +282,12 @@ pedirIngresoElemento:
 		je  elementoValido
 		lea dx,[ingresarIncorrecto]
 		call imprimirMensaje
-		call ejecutarEnter
+		call imprimirEnter
 		jmp  pedirIngresoElemento
 elementoValido:
 		lea dx,[ingresarCorrecto]
 		call imprimirMensaje
-		call ejecutarEnter
+		call imprimirEnter
 		ret
 		
 ;**********************************************************************
@@ -356,7 +352,7 @@ siguientePosicionAgregar:
 conjuntoLleno:
 		lea dx,[mensajeConjuntoLleno]
 		call imprimirMensaje
-		call ejecutarEnter
+		call imprimirEnter
 finAgregarConjunto:
 		mov byte[contadorConjunto],"1"
 		ret
@@ -453,35 +449,35 @@ noEstaIncluido:
 imprimirMenu:
 		lea dx,[menuInicio]
 		call imprimirMensaje
-		call ejecutarEnter
+		call imprimirEnter
 	
 		lea dx,[menuIngresar]
 		call imprimirMensaje
-		call ejecutarEnter
+		call imprimirEnter
 		
 		lea dx,[menuPertenencia]
 		call imprimirMensaje
-		call ejecutarEnter
+		call imprimirEnter
 		
 		lea dx,[menuIgualdad]
 		call imprimirMensaje
-		call ejecutarEnter
+		call imprimirEnter
 
 		lea dx,[menuInclusion]
 		call imprimirMensaje
-		call ejecutarEnter
+		call imprimirEnter
 		
 		lea dx,[menuSalir]
 		call imprimirMensaje
-		call ejecutarEnter
+		call imprimirEnter
 
 		lea dx,[menuFin]
 		call imprimirMensaje
-		call ejecutarEnter
+		call imprimirEnter
 
 		lea dx,[menuSeleccionar]
 		call imprimirMensaje
-		call ejecutarEnter
+		call imprimirEnter
 
 		ret
 		
@@ -491,13 +487,13 @@ imprimirMenu:
 imprimirMenuOpcionInvalida:
 		lea dx,[menuSeleccionar]
 		call imprimirMensaje
-		call ejecutarEnter
+		call imprimirEnter
 		ret
 		
 ;**********************************************************************
 ; Imprimo un enter en la pantalla
 ;**********************************************************************		
-ejecutarEnter:
+imprimirEnter:
 		mov dx,salto
 		mov ah,9h
 		int 21h
@@ -510,34 +506,3 @@ imprimirMensaje:
 		mov ah,9
 		int 21h
 		ret
-
-
-;**********************************************************************
-; Eliminar Luego
-;**********************************************************************
-		
-;**********************************************************************
-; Recorro la matriz y la muestro
-;**********************************************************************
-recorrerMatriz:
-		mov bx,0
-		mov si,0
-		mov cx,360
-		mov byte[contador],0
-sigienteElemento:
-		inc byte[contador]
-		lea dx,[matriz+si]
-		mov ah,9
-		int 21h
-		add si,3
-		cmp byte[contador],20
-		je imprimirFinColumna
-vuelvoElemento:
-		sub cx,3
-		jnz sigienteElemento
-		ret
-imprimirFinColumna:
-		call ejecutarEnter
-		mov byte[contador],0
-		jmp vuelvoElemento
-
