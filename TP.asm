@@ -11,29 +11,12 @@ segment datos data
 		
 		menuOpcionInvalida db 'Debe seleccionar opcion [1-5]$'
 
-		menuOpcion resb 1
-		           db  '$'
-		
-		matriz times 120 db '  $'
-						db '$'
-	
-				db 3
-				db 0
-		elemento resb 3
-						
-		salto db 13,10,'$'
-		
-		contador db 1
-		
-		flagElemento resb 1  ; si vale V: Valido. F: No Valido
-		
-		
 		mensajeIngresoConjunto db 'Ingresar conjunto del 1 al 6$'
 		mensajeIngresoElemento db 'Ingrese un elemento valido$'
 		
-		ingresarCorrecto db 'Ha ingresado un elemento valido$'
-		ingresarIncorrecto db 'Debe ingresar un elemento valido 2 digitos alfanumericos$'
-		ingresarElementoExistente db 'El elemento ya fue ingresado en este conjunto$'
+		;mensajeIngresarCorrecto db 'Ha ingresado un elemento valido$'
+		mensajeIngresarIncorrecto db 'Debe ingresar un elemento valido 2 digitos alfanumericos$'
+		mensajeIngresarElementoExistente db 'El elemento ya fue ingresado en este conjunto$'
 		
 		mensajeConjuntoLleno db 'El conjunto ya esta lleno$'
 		
@@ -46,19 +29,34 @@ segment datos data
 		mensajeInclusionConjuntos db 'El primer conjunto esta incluido en el segundo conjunto$'
 		mensajeNoInclusionConjuntos db 'El primer conjunto no esta incluido en el segundo conjunto$'
 		
-		numeroConjuntoChar resb 1 ; guardo el valor del conjunto elegido
-		contadorConjunto db "1"
-		conjuntoValido resb 1
+		menuOpcion resb 1
+		           db  '$'
 		
-		; conjunto Uno para la inclusion e igualdad de conjuntos
+		matriz times 120 db '  $'
+						db '$'
+	
+				db 3
+				db 0
+		elemento resb 3
+						
+		salto db 13,10,'$'
+		
+		;Contadores numericos
+		contador db 1
+		contadorIncluido resb 1
+		
+		; Flags: si vale V: Valido. F: No Valido
+		flagIncluido resb 1
+		flagElemento resb 1
+		flagConjuntoValido resb 1
+		
+		; conjunto Uno y Dos para la inclusion e igualdad de conjuntos
+		numeroConjuntoChar resb 1 ; guardo el valor del conjunto elegido
 		numeroConjuntoUno resb 1
-		; conjunto Dos para la inclusion e igualdad de conjuntos
 		numeroConjuntoDos resb 1
 		
-		flagIncluido resb 1  ; si vale V: Valido. F: No Valido
+		contadorConjunto db "1"
 		contadorConjuntoIncluido db "1"
-		
-		contadorIncluido resb 1
 		
 segment pila stack
 		resb 64
@@ -87,17 +85,17 @@ inicio:
 		cmp byte[menuOpcion],'1'
 		je ingresarElemento
 		
-		cmp  byte[menuOpcion],'2'
-		je   existenciaElemento
+		cmp byte[menuOpcion],'2'
+		je existenciaElemento
 		
-		cmp  byte[menuOpcion],'3'
-		je  igualdadConjuntos
+		cmp byte[menuOpcion],'3'
+		je igualdadConjuntos
 
-		cmp  byte[menuOpcion],'4'
-		je   inclusionConjuntos
+		cmp byte[menuOpcion],'4'
+		je inclusionConjuntos
 		
-		cmp  byte[menuOpcion],'5'
-		je  finPrograma
+		cmp byte[menuOpcion],'5'
+		je finPrograma
 
 		call imprimirMenuOpcionInvalida
 		jmp inicio
@@ -123,7 +121,7 @@ volverIngresarElemento:
 		jmp inicio
 		
 ingresarElementoExiste:
-		lea dx,[ingresarElementoExistente]
+		lea dx,[mensajeIngresarElementoExistente]
 		call imprimirMensaje
 		call imprimirEnter
 		jmp volverIngresarElemento
@@ -191,6 +189,7 @@ msgConjuntosNoIguales:
 		call imprimirMensaje
 		call imprimirEnter
 		jmp finIgualdadConjuntos
+		
 ;**********************************************************************
 ; Verificar la inclusion de un conjunto en otro
 ; Devuelve en flagIncluido si el primer conjunto esta incluido en el 
@@ -239,13 +238,13 @@ pedirIngresoConjunto:
 		
 		call validarIngresoConjunto
 		
-		cmp byte[conjuntoValido], "F"
+		cmp byte[flagConjuntoValido], "F"
 		je pedirIngresoConjunto
 		
 		ret
 
 validarIngresoConjunto:
-		mov byte[conjuntoValido], "V"
+		mov byte[flagConjuntoValido], "V"
 		cmp byte[numeroConjuntoChar],"1"
 		jl ingresoConjuntoNoValido
 		cmp byte[numeroConjuntoChar],"6"
@@ -254,9 +253,8 @@ finValidarIngresoConjunto:
 		ret
 		
 ingresoConjuntoNoValido:
-		mov byte[conjuntoValido], "F"
+		mov byte[flagConjuntoValido], "F"
 		jmp finValidarIngresoConjunto
-
 
 ;**********************************************************************
 ; Pido el ingreso del elemento a agregar
@@ -280,12 +278,12 @@ pedirIngresoElemento:
 		
 		cmp  byte[flagElemento],"V"
 		je  elementoValido
-		lea dx,[ingresarIncorrecto]
+		lea dx,[mensajeIngresarIncorrecto]
 		call imprimirMensaje
 		call imprimirEnter
 		jmp  pedirIngresoElemento
 elementoValido:
-		lea dx,[ingresarCorrecto]
+		;lea dx,[mensajeIngresarCorrecto]
 		call imprimirMensaje
 		call imprimirEnter
 		ret
