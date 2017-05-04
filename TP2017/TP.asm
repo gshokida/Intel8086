@@ -1,8 +1,10 @@
 segment datos data
-		salto db 13,10,'$'
+		salto 			db 13,10,'$'
 		msjInicial		db 'Comenzando el proceso de conversiones...$'
 		msjFinal		db 'Fin del proceso de conversiones$'
 
+		archivo   		db 'fechas.dat$'
+		
 segment pila stack
 		resb 64
 stacktop:
@@ -19,7 +21,18 @@ inicio:
 		call imprimirMensajeInicio
 		call imprimirEnter
 		
-		;Realizar el proceso de levantar archivo y llery codificar
+		;abrir el archivo
+		mov dx,filename
+		mov ah,3Dh
+		mov al,0
+		int 21h
+		
+		;codificar la lectura del archivo
+		
+cierroArchivo:
+		mov bx,ax
+		mov ah,3Eh
+		int 21h
 		
 		call imprimirMensajeFinal
 		call imprimirEnter
