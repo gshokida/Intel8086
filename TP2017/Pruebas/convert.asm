@@ -41,6 +41,11 @@ segment datos data
 		cociente		db  0
 		resto			db  0
 		
+		; Verificar si es bisiesto
+		b_cuatrocientos dw 400
+		b_cien          dw 100
+		b_cuatro		dw 4
+		esBisiesto      resb 1
 		
 segment pila stack
 		resb 1024
@@ -91,16 +96,27 @@ convertirAGregoriano:
 		mov si,0
 		mov byte[contador],0
 		
+		; calcular el año
+		mov si,[j_anio]
+		add word[g_anio],si
+		
+		call esAnioBisiesto
+		cmp byte[esBisiesto],0
+		je siguienteMes
+		
+		; Si es año bisiesto febrero tiene 29 dias 
+		mov	word[diasMes+2],29
+		
 siguienteMes:
 		inc byte[g_mes]
 		inc byte[contador]
 		
 		mov ax,0
-		mov ax,[g_dia]
-		cmp di,word[diasMes+si]
+		mov ax,word[g_dia]
+		cmp ax,word[diasMes+si]
 		jle finalizarContadorMes
-		sub di,word[diasMes+si]
-		mov [g_dia],di
+		sub ax,word[diasMes+si]
+		mov [g_dia],ax
 		inc si
 		inc si
 		cmp byte[contador],12
@@ -108,16 +124,14 @@ siguienteMes:
 		jmp siguienteMes
 		
 finalizarContadorMes:
-		mov si,[j_anio]
-		add word[g_anio],si
+		mov	word[diasMes+2],28
 		call darFormatoString
 		
 		ret
 		
 ;**********************************************************************
 ; Convierto a string la fecha para mostrar
-;**********************************************************************		
-		
+;**********************************************************************
 darFormatoString:
 		; Obtengo el día
 		mov  dx,0
@@ -170,21 +184,54 @@ finDivision:
 		ret
 
 ;**********************************************************************
+; Devuelve en esBisiesto 0 si no es bisiesto y 1 si es bisiesto
+;**********************************************************************
+esAnioBisiesto:
+		mov byte[esBisiesto],0
+		
+		; si es divisible por 400 es bisiesto
+		mov dx,0
+		mov ax,[g_anio]
+		div word[b_cuatrocientos]
+		cmp dx,0
+		je siEsAnioBisiesto
+		
+		; si es divisible 4, tengo que verificar que no es divisible por 100
+		mov dx,0
+		mov ax,[g_anio]
+		div word[b_cuatro]
+		cmp dx,0
+		je verificarSiEsDivisiblePorCien
+		ret
+		
+verificarSiEsDivisiblePorCien:
+		mov dx,0
+		mov ax,[g_anio]
+		div word[b_cien]
+		cmp dx,0
+		jne siEsAnioBisiesto
+		ret
+		
+siEsAnioBisiesto:
+		mov byte[esBisiesto],1
+		ret
+		
+;**********************************************************************
 ; Inicializo el vector de dias por mes 
 ;**********************************************************************	
 inicializarVariables:
 		mov	word[diasMes],31
-		mov	word[diasMes+1],28
-		mov	word[diasMes+2],31
-		mov	word[diasMes+3],30
+		mov	word[diasMes+2],28
 		mov	word[diasMes+4],31
-		mov	word[diasMes+5],30
-		mov	word[diasMes+6],31
-		mov	word[diasMes+7],31
-		mov	word[diasMes+8],30
-		mov	word[diasMes+9],31
+		mov	word[diasMes+6],30
+		mov	word[diasMes+8],31
 		mov	word[diasMes+10],30
-		mov	word[diasMes+11],31
+		mov	word[diasMes+12],31
+		mov	word[diasMes+14],31
+		mov	word[diasMes+16],30
+		mov	word[diasMes+18],31
+		mov	word[diasMes+20],30
+		mov	word[diasMes+22],31
 		ret
 		
 ;**********************************************************************
