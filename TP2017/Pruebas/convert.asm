@@ -23,7 +23,6 @@ segment datos data
 		
 		; Contador para iterar por mes
 		contador 		db 1
-		auxdia          dw 1
 		
 		; Para mostrar la fecha en la consola
 		convertNum		times 4 db '0'
@@ -82,7 +81,6 @@ finPrograma:
 		mov ah,4Ch
 		int 21h
 
-		
 ;**********************************************************************
 ; Convierto de Juliano a Gregoriano y lo imprimo
 ;**********************************************************************	
