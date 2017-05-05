@@ -65,8 +65,8 @@ inicio:
 		call inicializarVariables
 
 hardcode:
-		mov	word[j_dias],40
-		mov	word[j_anio],150
+		mov	word[j_dias],60
+		mov	word[j_anio],100
 
 procesoConversion:
 		call convertirAGregoriano
@@ -88,12 +88,11 @@ finPrograma:
 ;**********************************************************************	
 convertirAGregoriano:
 		mov si,[j_dias]
-		mov [g_dia],si
-		mov byte[g_mes],0
+		mov word[g_dia],si
+		mov word[g_mes],0
 		mov word[g_anio],1900
 		
 		; utilizo si para moverme por el vector de dias por mes
-		mov si,0
 		mov byte[contador],0
 		
 		; calcular el año
@@ -102,10 +101,13 @@ convertirAGregoriano:
 		
 		call esAnioBisiesto
 		cmp byte[esBisiesto],0
-		je siguienteMes
+		je iniciarLoopMes
 		
 		; Si es año bisiesto febrero tiene 29 dias 
 		mov	word[diasMes+2],29
+
+iniciarLoopMes:
+		mov si,0
 		
 siguienteMes:
 		inc byte[g_mes]
@@ -116,7 +118,7 @@ siguienteMes:
 		cmp ax,word[diasMes+si]
 		jle finalizarContadorMes
 		sub ax,word[diasMes+si]
-		mov [g_dia],ax
+		mov word[g_dia],ax
 		inc si
 		inc si
 		cmp byte[contador],12
