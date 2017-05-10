@@ -16,7 +16,7 @@ segment datos data
 		salto 			db 13,10,'$'
 		
 		; Para leer desde el archivo
-		registro 		times 6 resb
+		registro 		times 6 resb 1
 		
 		; Fecha en Juliana con valores numericos
 		j_dias     		resw 1
@@ -49,8 +49,14 @@ segment datos data
 		
 		; Para realizar la conversion a string
 		diez			dw  10
-		cociente		db  0
-		resto			db  0
+		
+		;Multiplicadores
+		PrimerDigito    dw 1
+		SegundoDigito   dw 10
+		TercerDigito   	dw 100
+		
+		; Numero binario
+		numeroBinario   db 0
 		
 		; Verificar si es bisiesto
 		b_cuatrocientos dw 400
@@ -76,7 +82,7 @@ inicio:
 		call inicializarVariables
 		
 abrirArchivo:
-		mov dx,filename			;dx = dir del nombre del archivo
+		mov dx,archivo			;dx = dir del nombre del archivo
 		mov ah,3dh				;ah = servicio para abrir archivo 3dh
 		mov al,0				;al = tipo de acceso (0=lectura; 1=escritura; 2=lectura y escritura)
 		int 21h
@@ -90,11 +96,12 @@ obtenerRegistro:
 		mov dx,registro			;dx = dir del area de memoria q contiene los bytes leidos del archivo
 		int 21h
 		jc	errRead
-		cmp      ax,0			;ax = cantidad de bytes leidos
-        je       cierroArchivo	;si la cantidad de bytes leidos es 0 termine de leer el archivo
+		cmp ax,0				;ax = cantidad de bytes leidos
+        je cierroArchivo		;si la cantidad de bytes leidos es 0 termine de leer el archivo
 		
-		;TODO: realizar codificacion
+		call realizarCodificacion
 		
+		jmp obtenerRegistro
 		
 cierroArchivo:
 		mov bx,[fHandle]		;bx = handle del archivo
@@ -109,6 +116,88 @@ finPrograma:
 		mov ah,4Ch
 		int 21h
 
+
+;**********************************************************************
+; Luego de obtener el registro hago la codificacion de empaquetado a 
+; binario
+;**********************************************************************	
+realizarCodificacion:
+		call obtenerAnioDelRegistro
+		call obtenerDiasDelRegistro
+		
+		call convertirAGregoriano
+		
+		; Imprimo la fecha en consola
+		lea dx,[dia]
+		call imprimirMensaje
+		
+		ret
+		
+obtenerAnioDelRegistro:
+		;contador en cero
+		mov word[j_anio],0
+		
+		mov dx,word[registro]
+		shr dh,4
+		mov byte[numeroBinario],dh
+		mov ax,0
+		mov al,byte[numeroBinario]
+		mul word[PrimerDigito]
+		mov word[j_anio],ax
+		
+		;Segundo digito
+		mov dx,word[registro]
+		shl dl,4
+		shr dl,4
+		mov byte[numeroBinario],dl
+		mov ax,0
+		mov al,byte[numeroBinario]
+		mul word[SegundoDigito]
+		add word[j_anio],ax
+		
+		;Segundo digito
+		mov dx,word[registro]
+		shr dl,4
+		mov byte[numeroBinario],dl
+		mov ax,0
+		mov al,byte[numeroBinario]
+		mul word[TercerDigito]
+		add word[j_anio],ax
+
+		ret
+		
+obtenerDiasDelRegistro:
+		;contador en cero
+		mov word[j_dias],0
+		
+		mov dx,word[registro+4]
+		shr dh,4
+		mov byte[numeroBinario],dh
+		mov ax,0
+		mov al,byte[numeroBinario]
+		mul word[PrimerDigito]
+		mov word[j_dias],ax
+		
+		;Segundo digito
+		mov dx,word[registro+4]
+		shl dl,4
+		shr dl,4
+		mov byte[numeroBinario],dl
+		mov ax,0
+		mov al,byte[numeroBinario]
+		mul word[SegundoDigito]
+		add word[j_dias],ax
+		
+		;Segundo digito
+		mov dx,word[registro+4]
+		shr dl,4
+		mov byte[numeroBinario],dl
+		mov ax,0
+		mov al,byte[numeroBinario]
+		mul word[TercerDigito]
+		add word[j_dias],ax
+		
+		ret
 ;**********************************************************************
 ; Convierto de Juliano a Gregoriano y lo imprimo
 ;**********************************************************************	

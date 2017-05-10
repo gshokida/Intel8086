@@ -3,20 +3,11 @@ segment datos data
 		; Para el enter
 		salto 			db 13,10,'$'
 		
-		; Numero empaquetado
-		numeroEmpa		dw 321fh
-		
-		; Numero binario
-		total			dw 0
-		numeroBinario   db 0
-		
-		;Multiplicadores
-		PrimerDigito    dw 1
-		SegundoDigito   dw 10
-		TercerDigito   	dw 100
+		numeroHexa  	dw 015h
+		numeroDec       dw 21
 		
 		;Dia en formato string
-		dia 			times 3 db '0'
+		dia 			times 2 db '0'
 						db '$'
 		
 		; Para realizar la conversion a string
@@ -39,50 +30,28 @@ segment codigo code
 		mov ss,ax
 		mov sp,stacktop
 		
-		;contador en cero
-		mov word[total],0
-		
-		;cargo el valor del empaquetado
-		mov dx,word[numeroEmpa]
-		;Muevo a izquierda 4 bits al registro bajo dado que cuando se carga en memoria
-		;numeroEmpa quedaria 050f como seria en el archivo real 
-		shr dl,4
-		mov byte[numeroBinario],dl
-		mov ax,0
-		mov al,byte[numeroBinario]
-		mul word[PrimerDigito]
-		mov word[total],ax
-		
-		;Segundo digito
-		mov dx,word[numeroEmpa]
-		shl dh,4
-		shr dh,4
-		mov byte[numeroBinario],dh
-		mov ax,0
-		mov al,byte[numeroBinario]
-		mul word[SegundoDigito]
-		add word[total],ax
-		
-		;Segundo digito
-		mov dx,word[numeroEmpa]
-		shr dh,4
-		mov byte[numeroBinario],dh
-		mov ax,0
-		mov al,byte[numeroBinario]
-		mul word[TercerDigito]
-		add word[total],ax
-		
 		;Convertir a string
 		mov  dx,0
-		mov  ax,word[total]
-		mov  si,2
+		mov  ax,[numeroHexa]
+		mov  si,1
 		call divisionesSucesivas
 		mov al,[convertNum]
 		mov [dia],al
 		mov al,[convertNum+1]
 		mov [dia+1],al
-		mov al,[convertNum+2]
-		mov [dia+2],al
+		
+		; Imprimo la fecha en consola
+		lea dx,[dia]
+		call imprimirMensaje
+		
+		mov  dx,0
+		mov  ax,[numeroDec]
+		mov  si,1
+		call divisionesSucesivas
+		mov al,[convertNum]
+		mov [dia],al
+		mov al,[convertNum+1]
+		mov [dia+1],al
 		
 		; Imprimo la fecha en consola
 		lea dx,[dia]
