@@ -1,14 +1,22 @@
 segment datos data
 		; Mensajes
-		msjInicial		db 'Iniciando aplicación...','$'
+		msjInicial		db 'Iniciando aplicacion...','$'
 		msjFinal		db 'Fin del programa','$'
 		menuOpciones    db  'Seleccionar opcion [1-3]','$'
-		msjIngresoHex   db '1) Ingresar numero Hexadecimal','$'
-		msjIngresoOct   db '2) Ingresar numero Octal','$'
+		msjIngresoHex   db '1) Ingresar numero Hexadecimal (MAX: 8 digitos)','$'
+		msjIngresoOct   db '2) Ingresar numero Octal (MAX 10 digitos)','$'
 		msjIngresoOut   db '3) Salir','$'
 		msjConvertOct   db 'Convertir a Octal: ','$'
 		msjConvertHex   db 'Convertir a Hexadecimal','$'
 		msjErrOpen		db 'Error en apertura','$'
+		
+		msjOctal 		db 'Ingrese su numero en octal (MAX 10 digitos)','$'
+		msjHexa			db 'Ingrese su numero en hexa (MAX: 8 digitos)','$'
+		
+		msjOctalToHexa	db 'Su numero en hexa es:','$'
+		msjHexaToOctal	db 'Su numero en octal es:','$'
+		
+		msjSeparador    db '-----------------------------------------------------------','$'
 		
 		menuInput  resb 1
 		           db  '$'
@@ -31,16 +39,14 @@ segment codigo code
 inicio:
 		call imprimirMensajeInicio
 
+menu:
 		call imprimirMenu
 		
 		call chooseOperation
-		
-
-		call imprimirMensajeFinal
-		mov ah,1
-		int 21h
-		
+			
 finPrograma:
+		call imprimirEnter
+		call imprimirMensajeFinal
 		mov ah,4Ch
 		int 21h
 
@@ -52,15 +58,56 @@ chooseOperation:
 		mov byte[menuInput],al
 		
 		cmp  byte[menuInput],'1'
-		je   finPrograma
+		je   hexaToBinary
 		
 		cmp  byte[menuInput],'2'
-		je   finPrograma
+		je   octalToBinary
 		
 		cmp  byte[menuInput],'3'
 		je  finPrograma
 		
-		jne inicio
+		lea dx,[msjSeparador]
+		call imprimirMensaje
+		
+		jne menu
+		
+		
+;**********************************************************************
+; Transformo el numero ingresado en binario
+;**********************************************************************
+octalToBinary:
+		call imprimirEnter
+		lea dx,[msjOctal]
+		call imprimirMensaje
+		
+		
+		
+		lea dx,[msjOctalToHexa]
+		call imprimirMensaje
+		
+		lea dx,[msjSeparador]
+		call imprimirMensaje
+		
+		jmp menu
+	
+
+;**********************************************************************
+; Transformo el numero ingresado en binario
+;**********************************************************************
+hexaToBinary:
+		call imprimirEnter
+		lea dx,[msjHexa]
+		call imprimirMensaje
+		
+		
+		lea dx,[msjHexaToOctal]
+		call imprimirMensaje
+		
+		lea dx,[msjSeparador]
+		call imprimirMensaje
+		jmp menu
+
+		
 ;**********************************************************************
 ; Imprimo mensaje de inicio
 ;**********************************************************************
@@ -71,6 +118,7 @@ imprimirMenu:
 		call imprimirMensaje
 		lea dx,[msjIngresoOut]
 		call imprimirMensaje
+		call imprimirEnter
 		ret	
 ;**********************************************************************
 ; Imprimo mensaje de inicio
