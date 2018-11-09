@@ -1,12 +1,8 @@
 segment datos data
 
-		resultOK		db 'OK','$'
-		resultMAL		db 'menor','$'
-		resultMAL2		db 'mayor','$'
-
-		hexaEnPantalla	db 'Muestro el hexa en pantalla.','$'
+		octalEnPantalla	db 'Muestro el octal en pantalla.','$'
 		
-		valorHardcode	db '70000','$'
+		valorHardcode	db '0F00','$'
 
 		valorBinario	resw 1
 		
@@ -34,74 +30,75 @@ inicio:
 		call imprimirMensaje
 
 		
-octalToBinario:
-		; almaceno en cx el octal transformado en binario
+hexaToBinario:
+		; almaceno en cx el hexa transformado en binario
 		mov cx,0
 		
 		;contador para loop
 		mov	si,0
 		
-otroOctalToBinario:
+otroHexaToBinario:
 		;dl <- elemento del vector apuntado por bx+si
 		mov	dl,[valorHardcode+si]			
 		
+		cmp dl,39h
+		jg restarMasPorSerLetra
 		; le resto 30 para transformarlo en binario
 		sub dl,30h
+		jmp seguirHexaToBin
 		
+restarMasPorSerLetra:
+		sub dl,37h
+		
+seguirHexaToBin:
 		; pongo en cero dh 
 		mov dh,0
 		
-		;corro 3 posiciones al bx 
-		shl cx,3
+		;corro 4 posiciones al cx 
+		shl cx,4
 		add cx,dx
 		
 		; me posiciono en el siguiente elemento del vector
 		add	si,1					
-		cmp	si,5
-		jl	otroOctalToBinario
-
+		cmp	si,4
+		jl	otroHexaToBinario
+		
 		;paso lo que tengo en bx a val
 		mov word[valorBinario],cx
 		
-binarioToHexa:
+binarioToOctal:
 		
 		mov al,0
 		mov si,5
 		
-otroBinarioToHexa:
+otroBinarioToOctal:
 		
 		; me traigo el valor de memoria
 		mov cx,[valorBinario]
 		
-		; solo uso los 4 bits que necesito para el hexa
-		shl cx,12
-		shr cx,12
+		; solo uso los 3 bits que necesito para el hexa
+		shl cx,13
+		shr cx,13
 		
 		;obtengo el caracter en ASCIIs
-		cmp cl,9h
-		jg sumarPorSerLetra
 		add cl,30h
-		jmp copiarAlVector
-		
-sumarPorSerLetra:
-		add cl,37h
 
 copiarAlVector:
 		; lo copio en el vector
 		mov byte[vector+si],cl
 		
-		; corro 4 bits para quitar los que ya vi y lo guardo
+		; corro 3 bits para quitar los que ya vi y lo guardo
 		mov cx,[valorBinario]
-		shr cx,4
+		shr cx,3
 		mov word[valorBinario],cx
 		
 		; me posiciono en el siguiente elemento del vector
 		sub si,1
 		add	al,1					
-		cmp	al,4
-		jl	otroBinarioToHexa
+		cmp	al,6
+		jl	otroBinarioToOctal
 		
-		lea dx,[hexaEnPantalla]
+		lea dx,[octalEnPantalla]
 		call imprimirMensaje
 		
 mostrarHexaPantalla:
