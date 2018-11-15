@@ -76,7 +76,9 @@ elegirOperacion:
 		; Ingresar opcion [1-3]
 		mov ah,1
 		int 21h
-
+		
+		call limpiarValorAMostrar
+		
 		;obtengo la opcion ingresada		
 		mov byte[menuInput],al
 		
@@ -93,6 +95,16 @@ elegirOperacion:
 		call imprimirMensaje
 		
 		jne menu
+
+
+limpiarValorAMostrar:
+		mov si,0
+limpiarOtro:
+		mov byte[vector+si],' '
+		add	si,1
+		cmp	si,6
+		jl	limpiarOtro
+		ret
 		
 ;**********************************************************************
 ; Transformo el numero ingresado en binario
